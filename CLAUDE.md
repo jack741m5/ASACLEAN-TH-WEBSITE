@@ -27,8 +27,23 @@ screw-02.jpg.jpg
 There is **no build system, no package manager, no framework, and no tests.**
 The `.html` file is self-contained and runs by opening it in a browser.
 
+`PROJECT-STATUS.md` (Thai) is the owner's running **status/handoff log** — deploy
+inventory, SEO status, TODOs, and a changelog kept in sync across machines. Read
+it before starting work, and append to its changelog when you change site
+content. It is the source of truth for *what is live*; this CLAUDE.md is the
+source of truth for *how the code works*.
+
 > A sibling repo, `website-asacleanth-`, currently holds only a placeholder
 > README and is not the active codebase.
+
+> **This repo vs. the deploy project:** This Git repo holds the landing-page
+> **source** only. The owner maintains a separate local project,
+> `asaclean-thailand_v02/`, whose `deploy-hostinger/` folder is the actual
+> artifact uploaded to Hostinger `public_html` (see
+> [Hosting & deployment](#hosting--deployment)). That project also contains an
+> unused React template (`client/` `server/` `shared/` `dist/`) left over from a
+> previous scaffold — it is **not** used to build the live site. Those folders
+> are **not** in this repo.
 
 ## Anatomy of `asaclean-website.html`
 
@@ -118,10 +133,12 @@ whole file**, and never paste base64 into edits. Instead:
 
 - **Company:** บริษัท จิตตรงเคมีภัณฑ์ จำกัด (CSC) — authorized ASACLEAN
   distributor in Thailand, 30+ years (since 1995).
-- **Phone:** `tel:0632149268`, `tel:0835907389`
+- **Phone:** `tel:0632149268`, `tel:0835907389` (the `083-590-7389` number,
+  `+66-83-590-7389`, is the primary one used in the Schema.org business data).
 - **LINE:** `@asacsc` (`https://lin.ee/uYh18ag`)
 - **Email:** `info@asaclean-thailand.com`
-- **Facebook:** AsacleanThailand
+- **Facebook:** AsacleanThailand · **YouTube:** `@asacsc` · **Group site:** cscth.com
+- **Hours (per Schema):** Mon–Fri 08:30–17:30, Bangkok.
 - Keep these consistent everywhere they appear if you update contact info.
 
 ## Production site architecture
@@ -132,8 +149,9 @@ picture in mind when editing:
 
 ```
 /                                   Landing page  ← built from asaclean-website.html
+/.htaccess                          Cache + Gzip + Force HTTPS
 /robots.txt                         → points at /sitemap.xml
-/sitemap.xml
+/sitemap.xml                        8 URLs + image sitemap
 /articles/                          Articles hub (index.html) listing all posts
 /articles/style.css                 Shared external stylesheet for all article pages
 /articles/extrusion-purging-guide.html
@@ -167,9 +185,35 @@ deployed landing `index.html` differs in two ways:
 1. **SEO/social head tags** are added in production: tuned `<title>`/description,
    canonical, Open Graph + Twitter Card meta, JSON-LD structured data,
    `theme-color`, and `robots` meta.
-2. **External assets replace base64**: favicons (`favicon.ico`, `favicon-48.png`,
-   `apple-touch-icon.png`), `og-image.jpg`, and optimized images (e.g.
-   `logo-nav.webp`) are referenced as files instead of inlined data URIs.
+2. **External assets replace base64**: favicons (`favicon.ico`, `favicon-32.png`,
+   `favicon-48.png`, `apple-touch-icon.png`), `og-image.jpg` (1200×630), and
+   optimized images (`logo-nav.webp`, `screw-before.webp`/`screw-after.webp`,
+   `video-poster.jpg` + `rheology_asacleanR.mp4`) are referenced as files instead
+   of inlined data URIs.
+
+The deployed landing page's JSON-LD covers `Organization`, `LocalBusiness`,
+`WebSite`, `Product`, and `FAQPage`; article pages add `Article`.
+
+## Hosting & deployment
+
+The live site is hosted on **Hostinger**; deployment is a **manual file upload**
+into `public_html` (no CI/CD, no pipeline). The owner builds the deploy artifact
+in a **separate** local project — `asaclean-thailand_v02/deploy-hostinger/` — and
+uploads the changed files. That `deploy-hostinger/` tree (landing `index.html`,
+`articles/`, `sitemap.xml`, `robots.txt`, `.htaccess`, and the image/video/favicon
+assets) is what maps 1:1 onto the production paths above. **It is not part of this
+Git repo** — this repo is the landing-page source only.
+
+Release checklist (mirrors `PROJECT-STATUS.md`):
+
+1. Edit the landing page (`index.html`) or an article under `articles/`.
+2. Bump `lastmod` in `sitemap.xml` whenever content changes.
+3. Upload changed files to Hostinger `public_html`. **Binary files** (images,
+   video, `.ico`) often need a manual re-upload — when overwriting an image from
+   OneDrive you must download (Read) it first; `.ico` usually has to be uploaded
+   by hand.
+4. Re-submit the sitemap in Google Search Console after a sitemap change.
+5. Record the change in the `PROJECT-STATUS.md` changelog.
 
 ## Development workflow
 
